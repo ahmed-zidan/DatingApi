@@ -1,5 +1,7 @@
-﻿using DatingApi.Errors;
+﻿using Core.Interfaces;
+using DatingApi.Errors;
 using DatingApi.Helpers;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DatingApi.Extensions
@@ -9,6 +11,7 @@ namespace DatingApi.Extensions
         public static IServiceCollection AddApplicationServices(this IServiceCollection services) {
 
             services.AddAutoMapper(typeof(MyMapper));
+            services.AddScoped<ITokenService, TokenService>();
             services.Configure<ApiBehaviorOptions>(opt =>
             {
                 opt.InvalidModelStateResponseFactory = actionContext =>

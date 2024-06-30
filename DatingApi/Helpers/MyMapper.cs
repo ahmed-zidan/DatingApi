@@ -8,7 +8,7 @@ namespace DatingApi.Helpers
     {
         public MyMapper()
         {
-            CreateMap<AppUser, UserDto>();
+            CreateMap<AppUser, UserDto>().ReverseMap();
         }
     }
 }

@@ -16,9 +16,11 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(
     builder.Configuration.GetConnectionString("DatingDb")
                 ));
-builder.Services.AddIdentityServices();
+builder.Services.AddIdentityServices(builder.Configuration);
 builder.Services.AddApplicationServices();
-builder.Services.AddAuthorization();
+//builder.Services.AddAuthorization();
+builder.Services.AddCors();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -27,9 +29,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
-//app.UseAuthentication();
+app.UseCors(x=>x.AllowAnyHeader().AllowAnyMethod().WithOrigins(builder.Configuration.GetSection("clientSetting:clientUrl").Value));
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
