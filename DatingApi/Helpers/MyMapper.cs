@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Core;
 using DatingApi.DTOS;
+using System;
 
 namespace DatingApi.Helpers
 {
@@ -8,7 +9,10 @@ namespace DatingApi.Helpers
     {
         public MyMapper()
         {
-            CreateMap<AppUser, UserDto>().ReverseMap();
+            CreateMap<AppUser, UserDto>()
+                .ForMember(x=>x.age , y=>y.MapFrom(src=>src.getAge()))
+                .ForMember(x=>x.PhotoUrl , y=>y.MapFrom(src=>src.Photos.FirstOrDefault(x=>x.IsMain).Url));
+            CreateMap<UserDto,AppUser>();
         }
     }
 }

@@ -30,7 +30,7 @@ namespace DatingApi.Controllers
 
        
         [HttpGet("getUsers")]
-        [Authorize]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<UserDto>>> getUsers()
         {
             var users = await _userManager.Users.ToListAsync();
@@ -39,6 +39,7 @@ namespace DatingApi.Controllers
         }
         
         [HttpGet("getUser/{id}")]
+        [Authorize]
         public async Task<ActionResult<UserDto>> getUser(string id)
         {
             var user = await _userManager.Users.FirstOrDefaultAsync(x=>x.Id == id);
