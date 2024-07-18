@@ -8,8 +8,6 @@ namespace DatingApi.DTOS
         public int Id { get; set; }
         public string Url { get; set; }
         public bool IsMain { get; set; }
-        public bool PublicId { get; set; }
-        
-        
+        public int PublicId { get; set; }
     }
 }

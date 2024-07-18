@@ -10,9 +10,10 @@ namespace DatingApi.Helpers
         public MyMapper()
         {
             CreateMap<AppUser, UserDto>()
-                .ForMember(x=>x.age , y=>y.MapFrom(src=>src.getAge()))
-                .ForMember(x=>x.PhotoUrl , y=>y.MapFrom(src=>src.Photos.FirstOrDefault(x=>x.IsMain).Url));
+                .ForMember(x => x.age, y => y.MapFrom(src => src.getAge()))
+                .ForMember(x=>x.PhotoUrl , y => y.MapFrom<ImageResolver>());
             CreateMap<UserDto,AppUser>();
+            CreateMap<Photo,PhotoDto>().ForMember(x => x.Url, y => y.MapFrom<PhotoImageResolver>()); ;
         }
     }
 }

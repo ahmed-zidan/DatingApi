@@ -12,6 +12,7 @@ namespace DatingApi.Extensions
 
             services.AddAutoMapper(typeof(MyMapper));
             services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.Configure<ApiBehaviorOptions>(opt =>
             {
                 opt.InvalidModelStateResponseFactory = actionContext =>

@@ -6,7 +6,7 @@ namespace Core
     {
         public string Url { get; set; }
         public bool IsMain { get; set; }
-        public bool PublicId { get; set; }
+        public int PublicId { get; set; }
         [ForeignKey("User")]
         public string userId { get; set; }
         public AppUser User { get; set; }

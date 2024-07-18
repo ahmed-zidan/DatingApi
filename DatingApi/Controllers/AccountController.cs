@@ -3,10 +3,12 @@ using Core;
 using Core.Interfaces;
 using DatingApi.DTOS;
 using DatingApi.Errors;
+using DatingApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Http.Headers;
 
 namespace DatingApi.Controllers
 {
@@ -18,19 +20,21 @@ namespace DatingApi.Controllers
         private readonly SignInManager<AppUser> _signInManager;
         private readonly ITokenService _token;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _uow;
         public AccountController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager,
-            SignInManager<AppUser> signInManager, IMapper mapper,ITokenService token)
+            SignInManager<AppUser> signInManager, IMapper mapper,ITokenService token, IUnitOfWork uow)
         {
             _roleManager = roleManager;
             _userManager = userManager;
             _signInManager = signInManager;
             _mapper = mapper;
             _token = token;
+            _uow = uow;
         }
 
        
         [HttpGet("getUsers")]
-        [AllowAnonymous]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<UserDto>>> getUsers()
         {
             var users = await _userManager.Users.ToListAsync();
@@ -39,10 +43,10 @@ namespace DatingApi.Controllers
         }
         
         [HttpGet("getUser/{id}")]
-        [Authorize]
+        [AllowAnonymous]
         public async Task<ActionResult<UserDto>> getUser(string id)
         {
-            var user = await _userManager.Users.FirstOrDefaultAsync(x=>x.Id == id);
+            var user = await _userManager.Users.Include(x=>x.Photos).FirstOrDefaultAsync(x=>x.Id == id);
             if(user == null)
             {
                 return NotFound(new ApiResponse(404));
@@ -66,6 +70,8 @@ namespace DatingApi.Controllers
             {
                 return Unauthorized(new ApiResponse(401));
             }
+            user.LastActive = DateTime.Now;
+           await _uow.SaveChangesAsync();
             return Ok(new UserInfoDto()
             {
                 Id = user.Id,
@@ -89,7 +95,14 @@ namespace DatingApi.Controllers
                 Email = model.Email,
                 FirstName = model.FirstName,
                 SecondName = model.SecondName,
-                UserName = model.FirstName + "_" + model.SecondName
+                UserName = model.FirstName + "_" + model.SecondName,
+                City = model.City,
+                Country = model.Country,
+                Created = DateTime.Now,
+                DOB = model.DOB,
+                Gender = model.Gender,
+                Interests = model.Interests,
+                PhoneNumber = model.PhoneNumber
             };
            
             var created = await _userManager.CreateAsync(uesr,model.Password);
@@ -102,5 +115,26 @@ namespace DatingApi.Controllers
             return StatusCode(StatusCodes.Status201Created);
 
         }
+
+        [HttpPut("update")]
+        [Authorize]
+        public async Task<ActionResult> update(UserUpdateDto model)
+        {
+            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == model.Id);
+            if (user == null)
+            {
+                return NotFound(new ApiResponse(404));
+            }
+            user.FirstName = model.FirstName;
+            user.SecondName = model.SecondName;
+            user.City = model.City;
+            user.Country = model.Country;
+            user.Gender = model.Gender;
+            user.Interests = model.Interests;
+            user.Created = model.Created;
+           await _userManager.UpdateAsync(user);
+            return Ok();
+        }
+
     }
 }
